@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import bcrypt from "bcryptjs";
+import chalk from "chalk";
 
 import authRoutes from "./routes/auth.js";
 import User from "./models/User.js";
@@ -12,15 +13,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
+// ✅ Validate required env vars
+["MONGO_URI", "SUPERADMIN_EMAIL", "SUPERADMIN_PASSWORD"].forEach((key) => {
+  if (!process.env[key]) {
+    console.error(chalk.red(`❌ Missing env variable: ${key}`));
+    process.exit(1);
+  }
+});
 
-// Superadmin Seeder
+// 🛡️ Superadmin Seeder
 const seedSuperAdmin = async () => {
   try {
     const existing = await User.findOne({ role: "superadmin" });
     if (existing) {
-      console.log("✅ Superadmin already exists");
+      console.log(chalk.blue("ℹ️ Superadmin already exists"));
       return;
     }
 
@@ -33,16 +39,36 @@ const seedSuperAdmin = async () => {
     });
 
     await superadmin.save();
-    console.log("🌟 Superadmin created successfully");
+    console.log(chalk.green("🌟 Superadmin created successfully"));
   } catch (err) {
-    console.error("Error seeding superadmin:", err.message);
+    console.error(chalk.red("❌ Error seeding superadmin:"), err.message);
   }
 };
 
+// 🔁 MongoDB Connection with retry
+const connectDB = async (retries = 5) => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log(chalk.green("✅ MongoDB connected"));
+    await seedSuperAdmin();
+  } catch (err) {
+    console.error(chalk.red(`MongoDB connection failed: ${err.message}`));
+    if (retries > 0) {
+      console.log(chalk.yellow(`🔄 Retrying in 3s... (${retries} left)`));
+      setTimeout(() => connectDB(retries - 1), 3000);
+    } else {
+      console.error(chalk.red("❌ Could not connect to MongoDB"));
+      process.exit(1);
+    }
+  }
+};
+
+// 📡 Routes
+app.use("/api/auth", authRoutes);
+
+// 🚀 Start Server
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-    seedSuperAdmin();
-  })
-  .catch(err => console.log(err));
+app.listen(PORT, () => {
+  console.log(chalk.cyan(`🚀 Server running on port ${PORT} at ${new Date().toLocaleTimeString()}`));
+  connectDB();
+});
