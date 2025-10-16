@@ -1,13 +1,15 @@
 import { useEffect, useState, Fragment } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react"; // 👁️ icons for toggle
+import { Eye, EyeOff, Ban, Unlock } from "lucide-react"; // ✅ Added Ban + Unlock
+import toast from "react-hot-toast";
 
 export default function ReportedBlogs() {
   const [reportedBlogs, setReportedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedBlog, setExpandedBlog] = useState(null);
   const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role"); // ✅ store role client-side
 
   useEffect(() => {
     const fetchReportedBlogs = async () => {
@@ -29,6 +31,36 @@ export default function ReportedBlogs() {
     setExpandedBlog(expandedBlog === id ? null : id);
   };
 
+  // ✅ Block blog
+  const handleBlock = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/superadmin/block/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Blog blocked");
+      setReportedBlogs((prev) =>
+        prev.map((b) => (b._id === id ? { ...b, blocked: true } : b))
+      );
+    } catch (err) {
+      toast.error("Failed to block blog");
+    }
+  };
+
+  // ✅ Unblock blog
+  const handleUnblock = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/superadmin/unblock/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Blog unblocked");
+      setReportedBlogs((prev) =>
+        prev.map((b) => (b._id === id ? { ...b, blocked: false } : b))
+      );
+    } catch (err) {
+      toast.error("Failed to unblock blog");
+    }
+  };
+
   if (loading)
     return (
       <div className="flex justify-center items-center py-10 text-gray-600">
@@ -48,13 +80,13 @@ export default function ReportedBlogs() {
             <th className="p-2 text-left">Title</th>
             <th className="p-2 text-left">Author</th>
             <th className="p-2 text-left">Reports</th>
+            <th className="p-2 text-left">Status</th>
             <th className="p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {reportedBlogs.map((blog) => (
             <Fragment key={blog._id}>
-              {/* Summary row */}
               <tr
                 className={`border-t hover:bg-gray-50 transition ${
                   expandedBlog === blog._id ? "bg-gray-100" : ""
@@ -81,12 +113,18 @@ export default function ReportedBlogs() {
                 <td className="p-2 text-gray-700 font-semibold">
                   {blog.reports.length}
                 </td>
-
-                {/* Icon button instead of text */}
                 <td className="p-2">
+                  {blog.blocked ? (
+                    <span className="text-red-600 font-semibold">Blocked</span>
+                  ) : (
+                    <span className="text-green-600 font-semibold">Active</span>
+                  )}
+                </td>
+
+                <td className="p-2 flex items-center gap-2">
                   <button
                     onClick={() => toggleExpand(blog._id)}
-                    className="p-2 rounded-lg hover:bg-gray-200 transition flex items-center justify-center"
+                    className="p-2 rounded-lg hover:bg-gray-200 transition"
                     title={expandedBlog === blog._id ? "Hide details" : "View details"}
                   >
                     {expandedBlog === blog._id ? (
@@ -95,24 +133,43 @@ export default function ReportedBlogs() {
                       <Eye className="w-5 h-5 text-gray-700" />
                     )}
                   </button>
+
+                  {/* ✅ Block / Unblock Buttons */}
+                  {!blog.blocked && (
+                    <button
+                      onClick={() => handleBlock(blog._id)}
+                      className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200 transition"
+                      title="Block blog"
+                    >
+                      <Ban className="w-5 h-5" />
+                    </button>
+                  )}
+                  {blog.blocked && userRole === "superadmin" && (
+                    <button
+                      onClick={() => handleUnblock(blog._id)}
+                      className="p-2 bg-green-100 text-green-600 rounded hover:bg-green-200 transition"
+                      title="Unblock blog"
+                    >
+                      <Unlock className="w-5 h-5" />
+                    </button>
+                  )}
                 </td>
               </tr>
 
-              {/* Expanded section */}
+              {/* Your expanded section stays the same */}
               <AnimatePresence>
                 {expandedBlog === blog._id && (
                   <tr className="border-t bg-white">
-                    <td colSpan="4" className="p-0">
+                    <td colSpan="5" className="p-0">
                       <motion.div
                         key={blog._id}
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        transition={{ duration: 0.4 }}
                         className="overflow-hidden"
                       >
                         <div className="p-4 space-y-4">
-                          {/* Blog Image */}
                           {blog.image && (
                             <img
                               src={blog.image}
@@ -120,8 +177,6 @@ export default function ReportedBlogs() {
                               className="w-full max-h-60 object-cover rounded-lg border"
                             />
                           )}
-
-                          {/* Blog Content */}
                           <div>
                             <h3 className="text-lg font-semibold text-gray-800 mb-1">
                               {blog.title}
@@ -131,8 +186,6 @@ export default function ReportedBlogs() {
                               dangerouslySetInnerHTML={{ __html: blog.content }}
                             />
                           </div>
-
-                          {/* Tags */}
                           {blog.tags?.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                               {blog.tags.map((tag) => (
@@ -145,8 +198,6 @@ export default function ReportedBlogs() {
                               ))}
                             </div>
                           )}
-
-                          {/* Reports */}
                           <div className="border-t pt-3">
                             <h4 className="text-md font-semibold text-red-600 mb-2">
                               🧾 Reports ({blog.reports.length})

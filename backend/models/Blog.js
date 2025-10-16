@@ -17,6 +17,7 @@ const blogSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+    blocked: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -50,11 +50,11 @@ export const createBlog = async (req, res) => {
   }
 };
 
-// Get All Blogs with search & filters
+// ✅ Update in Get All Blogs with search & filters
 export const getBlogs = async (req, res) => {
   try {
     const { search, category, subcategory } = req.query;
-    let query = {};
+    let query = { blocked: { $ne: true } }; // ✅ exclude blocked blogs
 
     if (category) query.category = category;
     if (subcategory) query.subcategory = subcategory;
@@ -89,6 +89,7 @@ export const getBlogs = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get Single Blog
 export const getBlog = async (req, res) => {

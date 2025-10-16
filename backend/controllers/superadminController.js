@@ -80,3 +80,57 @@ export const getReportedBlogs = async (req, res) => {
   }
 };
 
+// ✅ Block Blog (Admin or Superadmin)
+export const blockBlog = async (req, res) => {
+  try {
+    if (!["admin", "superadmin"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+    blog.blocked = true;
+    await blog.save();
+
+    res.json({ message: "Blog blocked successfully", blog });
+  } catch (err) {
+    console.error("Error blocking blog:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Unblock Blog (Superadmin only)
+export const unblockBlog = async (req, res) => {
+  try {
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({ message: "Only superadmin can unblock" });
+    }
+
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+    blog.blocked = false;
+    blog.blockedAt = null; // ✅ reset blockedAt
+    await blog.save();
+
+    res.json({ message: "Blog unblocked successfully", blog });
+  } catch (err) {
+    console.error("Error unblocking blog:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get all blocked blogs
+export const getBlockedBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ blocked: true })
+      .populate("author", "name profileImage")
+      .populate("tags", "name")
+      .sort({ blockedAt: -1 });
+    res.json(blogs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

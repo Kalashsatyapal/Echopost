@@ -5,6 +5,7 @@ import ManageUsers from "../../components/ManageUsers";
 import EditGuidelines from "../../components/EditGuidelines";
 import ReportedBlogs from "../../components/ReportedBlogs";
 import TagManagement from "./TagManagement"; // ✅ imported new component
+import BlockedBlogs from "./BlockedBlogs";
 import { useNavigate } from "react-router-dom";
 import {
   FaUsers,
@@ -70,7 +71,11 @@ export default function SuperAdminDashboard() {
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-5 bg-white/90 shadow-md backdrop-blur-sm sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="EchoPost Logo" className="h-10 w-10 object-contain" />
+          <img
+            src={logo}
+            alt="EchoPost Logo"
+            className="h-10 w-10 object-contain"
+          />
           <h1 className="text-3xl font-extrabold text-indigo-700">EchoPost</h1>
         </div>
         <div className="flex items-center gap-3">
@@ -91,7 +96,16 @@ export default function SuperAdminDashboard() {
             { key: "users", label: "Manage Users", icon: <FaUsers /> },
             { key: "guidelines", label: "Edit Guidelines", icon: <FaCogs /> },
             { key: "tags", label: "Manage Tags", icon: <FaBlog /> },
-            { key: "reported", label: "Reported Blogs", icon: <FaFlag className="text-red-600" /> },
+            {
+              key: "reported",
+              label: "Reported Blogs",
+              icon: <FaFlag className="text-red-600" />,
+            },
+            {
+              key: "blocked",
+              label: "Blocked Blogs",
+              icon: <FaFlag className="text-red-500" />,
+            },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -122,8 +136,12 @@ export default function SuperAdminDashboard() {
                   <FaUsers className="text-indigo-600 text-4xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-indigo-700">Total Users</h3>
-                  <p className="text-5xl font-extrabold text-indigo-800">{stats.totalUsers}</p>
+                  <h3 className="text-lg font-semibold text-indigo-700">
+                    Total Users
+                  </h3>
+                  <p className="text-5xl font-extrabold text-indigo-800">
+                    {stats.totalUsers}
+                  </p>
                 </div>
               </div>
 
@@ -132,8 +150,12 @@ export default function SuperAdminDashboard() {
                   <FaBlog className="text-teal-600 text-4xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-teal-700">Total Blogs</h3>
-                  <p className="text-5xl font-extrabold text-teal-800">{stats.totalBlogs}</p>
+                  <h3 className="text-lg font-semibold text-teal-700">
+                    Total Blogs
+                  </h3>
+                  <p className="text-5xl font-extrabold text-teal-800">
+                    {stats.totalBlogs}
+                  </p>
                 </div>
               </div>
             </div>
@@ -190,33 +212,45 @@ export default function SuperAdminDashboard() {
             )}
           </>
         )}
-
         {activeTab === "users" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
-            <h2 className="text-2xl font-bold text-indigo-700 mb-4">👤 Manage Users</h2>
+            <h2 className="text-2xl font-bold text-indigo-700 mb-4">
+              👤 Manage Users
+            </h2>
             <ManageUsers />
           </section>
         )}
-
         {activeTab === "guidelines" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
-            <h2 className="text-2xl font-bold text-indigo-700 mb-4">🛠️ Edit Guidelines</h2>
+            <h2 className="text-2xl font-bold text-indigo-700 mb-4">
+              🛠️ Edit Guidelines
+            </h2>
             <EditGuidelines />
           </section>
         )}
-
-        {activeTab === "tags" && <TagManagement token={token} />} {/* ✅ Replaced tags section */}
-
+        {activeTab === "tags" && <TagManagement token={token} />}{" "}
+        {/* ✅ Replaced tags section */}
         {activeTab === "reported" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">🚨 Reported Blogs</h2>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              🚨 Reported Blogs
+            </h2>
             <ReportedBlogs />
+          </section>
+        )}
+        {activeTab === "blocked" && (
+          <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              🚫 Blocked Blogs
+            </h2>
+            <BlockedBlogs token={token} />
           </section>
         )}
       </main>
 
       <footer className="text-center py-6 text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} EchoPost SuperAdmin — Built for creators, by creators.
+        &copy; {new Date().getFullYear()} EchoPost SuperAdmin — Built for
+        creators, by creators.
       </footer>
     </div>
   );
