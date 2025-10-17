@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import ReportedBlogs from "../../components/ReportedBlogs";
+import ReportedComments from "../../components/ReportedComments";
+import { FaCommentDots } from "react-icons/fa";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -103,7 +105,9 @@ export default function AdminDashboard() {
             <h1 className="text-4xl font-extrabold text-purple-700 tracking-tight">
               EchoPost
             </h1>
-            <p className="text-lg text-gray-600 mt-1 font-medium">Admin Dashboard</p>
+            <p className="text-lg text-gray-600 mt-1 font-medium">
+              Admin Dashboard
+            </p>
           </div>
           <button
             onClick={() => navigate("/dashboard")}
@@ -121,6 +125,11 @@ export default function AdminDashboard() {
             { key: "overview", label: "Overview" },
             { key: "reported", label: "Reported Blogs" },
             { key: "tags", label: "Manage Tags" },
+            {
+              key: "reportedComments",
+              label: "Reported Comments",
+              icon: <FaCommentDots className="text-red-500" />,
+            },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -143,37 +152,61 @@ export default function AdminDashboard() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Total Blogs */}
             <div className="bg-white border rounded-xl shadow-sm p-6 flex items-center gap-4 hover:shadow-md transition">
-              <div className="bg-purple-100 text-purple-600 p-4 rounded-full text-3xl">📝</div>
+              <div className="bg-purple-100 text-purple-600 p-4 rounded-full text-3xl">
+                📝
+              </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-700">Total Blogs</h3>
-                <p className="text-3xl font-bold text-purple-700">{stats.totalBlogs}</p>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Total Blogs
+                </h3>
+                <p className="text-3xl font-bold text-purple-700">
+                  {stats.totalBlogs}
+                </p>
               </div>
             </div>
 
             {/* Total Users */}
             <div className="bg-white border rounded-xl shadow-sm p-6 flex items-center gap-4 hover:shadow-md transition">
-              <div className="bg-blue-100 text-blue-600 p-4 rounded-full text-3xl">👥</div>
+              <div className="bg-blue-100 text-blue-600 p-4 rounded-full text-3xl">
+                👥
+              </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-700">Total Users</h3>
-                <p className="text-3xl font-bold text-blue-700">{stats.totalUsers}</p>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Total Users
+                </h3>
+                <p className="text-3xl font-bold text-blue-700">
+                  {stats.totalUsers}
+                </p>
               </div>
             </div>
 
             {/* Reported Blogs */}
             <div className="bg-white border rounded-xl shadow-sm p-6 flex items-center gap-4 hover:shadow-md transition">
-              <div className="bg-red-100 text-red-600 p-4 rounded-full text-3xl">🚨</div>
+              <div className="bg-red-100 text-red-600 p-4 rounded-full text-3xl">
+                🚨
+              </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-700">Reported Blogs</h3>
-                <p className="text-3xl font-bold text-red-600">{stats.reportedBlogs}</p>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Reported Blogs
+                </h3>
+                <p className="text-3xl font-bold text-red-600">
+                  {stats.reportedBlogs}
+                </p>
               </div>
             </div>
 
             {/* Blocked Blogs */}
             <div className="bg-white border rounded-xl shadow-sm p-6 flex items-center gap-4 hover:shadow-md transition">
-              <div className="bg-gray-100 text-gray-600 p-4 rounded-full text-3xl">⛔</div>
+              <div className="bg-gray-100 text-gray-600 p-4 rounded-full text-3xl">
+                ⛔
+              </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-700">Blocked Blogs</h3>
-                <p className="text-3xl font-bold text-gray-700">{stats.blockedBlogs}</p>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Blocked Blogs
+                </h3>
+                <p className="text-3xl font-bold text-gray-700">
+                  {stats.blockedBlogs}
+                </p>
               </div>
             </div>
           </div>
@@ -181,16 +214,23 @@ export default function AdminDashboard() {
 
         {activeTab === "reported" && (
           <section className="bg-white p-6 rounded-xl shadow space-y-4">
-            <h2 className="text-2xl font-bold text-red-600">🚨 Reported Blogs</h2>
+            <h2 className="text-2xl font-bold text-red-600">
+              🚨 Reported Blogs
+            </h2>
             <ReportedBlogs />
           </section>
         )}
 
         {activeTab === "tags" && (
           <section className="bg-white p-6 rounded-xl shadow space-y-4">
-            <h2 className="text-2xl font-bold text-indigo-700">🏷️ Manage Tags</h2>
+            <h2 className="text-2xl font-bold text-indigo-700">
+              🏷️ Manage Tags
+            </h2>
 
-            <form onSubmit={handleCreateTag} className="flex flex-col md:flex-row gap-4">
+            <form
+              onSubmit={handleCreateTag}
+              className="flex flex-col md:flex-row gap-4"
+            >
               <input
                 type="text"
                 placeholder="Tag Name"
@@ -230,7 +270,9 @@ export default function AdminDashboard() {
                       tag._id && (
                         <tr key={tag._id} className="border-t hover:bg-gray-50">
                           <td className="p-2">{tag.name}</td>
-                          <td className="p-2 text-gray-600">{tag.description || "—"}</td>
+                          <td className="p-2 text-gray-600">
+                            {tag.description || "—"}
+                          </td>
                           <td className="p-2 text-gray-500">
                             {new Date(tag.createdAt).toLocaleDateString()}
                           </td>
@@ -247,7 +289,10 @@ export default function AdminDashboard() {
                   )}
                   {tags.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="text-center py-4 text-gray-500">
+                      <td
+                        colSpan="4"
+                        className="text-center py-4 text-gray-500"
+                      >
                         No tags found.
                       </td>
                     </tr>
@@ -255,6 +300,14 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </section>
+        )}
+        {activeTab === "reportedComments" && (
+          <section className="bg-white p-6 rounded-xl shadow space-y-4">
+            <h2 className="text-2xl font-bold text-red-600">
+              💬 Reported Comments
+            </h2>
+            <ReportedComments />
           </section>
         )}
       </main>

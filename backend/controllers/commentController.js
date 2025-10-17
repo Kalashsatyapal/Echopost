@@ -14,7 +14,10 @@ export const addComment = async (req, res) => {
       text,
     });
 
-    const populatedComment = await comment.populate("author", "name profileImage");
+    const populatedComment = await comment.populate(
+      "author",
+      "name profileImage"
+    );
     res.status(201).json(populatedComment);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -36,7 +39,10 @@ export const getComments = async (req, res) => {
 // Get Comment by ID
 export const getCommentById = async (req, res) => {
   try {
-    const comment = await Comment.findById(req.params.id).populate("author", "name profileImage");
+    const comment = await Comment.findById(req.params.id).populate(
+      "author",
+      "name profileImage"
+    );
     if (!comment) return res.status(404).json({ message: "Comment not found" });
     res.json(comment);
   } catch (err) {
@@ -57,7 +63,10 @@ export const updateComment = async (req, res) => {
     comment.text = req.body.text;
     await comment.save();
 
-    const populatedComment = await comment.populate("author", "name profileImage");
+    const populatedComment = await comment.populate(
+      "author",
+      "name profileImage"
+    );
     res.json(populatedComment);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -91,9 +100,48 @@ export const reportComment = async (req, res) => {
     comment.reports.push({ user: req.user._id, reason });
     await comment.save();
 
-    res.json({ message: "Comment reported successfully", reportsCount: comment.reports.length });
+    res.json({
+      message: "Comment reported successfully",
+      reportsCount: comment.reports.length,
+    });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// Get all reported comments (for Admin/SuperAdmin)
+export const getReportedComments = async (req, res) => {
+  try {
+    if (!["admin", "superadmin"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const reportedComments = await Comment.aggregate([
+      {
+        $match: {
+          "reports.0": { $exists: true },
+        },
+      },
+      {
+        $addFields: {
+          totalReports: { $size: "$reports" },
+          latestReportDate: { $max: "$reports.createdAt" },
+        },
+      },
+      {
+        $sort: { latestReportDate: -1 },
+      },
+    ]);
+
+    const populatedComments = await Comment.populate(reportedComments, [
+      { path: "author", select: "name profileImage" },
+      { path: "blog", select: "title" },
+      { path: "reports.user", select: "name email" },
+    ]);
+
+    res.status(200).json(populatedComments);
+  } catch (err) {
+    console.error("Error fetching reported comments:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

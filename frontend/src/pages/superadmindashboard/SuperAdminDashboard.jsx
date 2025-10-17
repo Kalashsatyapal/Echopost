@@ -6,6 +6,7 @@ import EditGuidelines from "../../components/EditGuidelines";
 import ReportedBlogs from "../../components/ReportedBlogs";
 import TagManagement from "./TagManagement"; // ✅ imported new component
 import BlockedBlogs from "./BlockedBlogs";
+import ReportedComments from "../../components/ReportedComments"; // 💬 imported ReportedComments component
 import { useNavigate } from "react-router-dom";
 import {
   FaUsers,
@@ -14,6 +15,7 @@ import {
   FaClipboardList,
   FaHome,
   FaFlag,
+  FaCommentDots,
 } from "react-icons/fa";
 import logo from "../../assets/logo.webp";
 
@@ -110,6 +112,11 @@ export default function SuperAdminDashboard() {
               key: "blocked",
               label: "Blocked Blogs",
               icon: <FaFlag className="text-red-500" />,
+            },
+            {
+              key: "reportedComments",
+              label: "Reported Comments",
+              icon: <FaCommentDots className="text-red-500" />,
             },
           ].map((tab) => (
             <button
@@ -250,7 +257,6 @@ export default function SuperAdminDashboard() {
             )}
           </>
         )}
-
         {activeTab === "users" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-indigo-700 mb-4">
@@ -259,7 +265,6 @@ export default function SuperAdminDashboard() {
             <ManageUsers />
           </section>
         )}
-
         {activeTab === "guidelines" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-indigo-700 mb-4">
@@ -268,10 +273,8 @@ export default function SuperAdminDashboard() {
             <EditGuidelines />
           </section>
         )}
-
         {activeTab === "tags" && <TagManagement token={token} />}{" "}
         {/* ✅ Replaced tags section */}
-
         {activeTab === "reported" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-red-600 mb-4">
@@ -280,13 +283,20 @@ export default function SuperAdminDashboard() {
             <ReportedBlogs />
           </section>
         )}
-
         {activeTab === "blocked" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-red-600 mb-4">
               🚫 Blocked Blogs
             </h2>
             <BlockedBlogs token={token} />
+          </section>
+        )}
+        {activeTab === "reportedComments" && (
+          <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              💬 Reported Comments
+            </h2>
+            <ReportedComments />
           </section>
         )}
       </main>
