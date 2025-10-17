@@ -80,19 +80,14 @@ export const deleteComment = async (req, res) => {
   }
 };
 
-// Report Comment
+// Report Comment (allow multiple reports by same user)
 export const reportComment = async (req, res) => {
   try {
     const { reason } = req.body;
     const comment = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).json({ message: "Comment not found" });
 
-    const alreadyReported = comment.reports.find(
-      (r) => r.user.toString() === req.user._id.toString()
-    );
-    if (alreadyReported)
-      return res.status(400).json({ message: "You already reported this comment" });
-
+    // No check for alreadyReported, so users can report multiple times
     comment.reports.push({ user: req.user._id, reason });
     await comment.save();
 

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast from "react-hot-toast";
 
 export default function ReportBlog() {
   const { id } = useParams(); // Blog ID
   const [blog, setBlog] = useState(null);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState(""); // <-- new state
+  const [errorMessage, setErrorMessage] = useState(""); // <-- for inline errors
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -19,7 +20,7 @@ export default function ReportBlog() {
         setBlog(res.data);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to fetch blog");
+        setErrorMessage("Failed to fetch blog");
       } finally {
         setLoading(false);
       }
@@ -29,7 +30,13 @@ export default function ReportBlog() {
 
   const handleReport = async (e) => {
     e.preventDefault();
-    if (!reason.trim()) return toast.error("Please enter a reason");
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!reason.trim()) {
+      setErrorMessage("Please enter a reason");
+      return;
+    }
 
     try {
       await axios.put(
@@ -37,11 +44,13 @@ export default function ReportBlog() {
         { reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Blog reported successfully");
-      navigate("/dashboard");
+      setSuccessMessage("✅ Blog reported successfully!");
+      setReason(""); // clear textarea
+      // Optional: navigate after a delay
+      // setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to report blog");
+      setErrorMessage(err.response?.data?.message || "Failed to report blog");
     }
   };
 
@@ -80,6 +89,13 @@ export default function ReportBlog() {
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         ></textarea>
+
+        {errorMessage && (
+          <p className="text-red-600 text-sm">{errorMessage}</p>
+        )}
+        {successMessage && (
+          <p className="text-green-600 text-sm">{successMessage}</p>
+        )}
 
         <div className="flex gap-4">
           <button
