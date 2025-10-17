@@ -1,15 +1,19 @@
 import User from "../models/User.js";
 import Blog from "../models/Blog.js";
 
-// ✅ Get total users and blogs count
+// Get total users, blogs, reported blogs, blocked blogs count
 export const getAdminStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalBlogs = await Blog.countDocuments();
+    const reportedBlogs = await Blog.countDocuments({ "reports.0": { $exists: true } });
+    const blockedBlogs = await Blog.countDocuments({ blocked: true });
 
     res.json({
       totalUsers,
       totalBlogs,
+      reportedBlogs,
+      blockedBlogs,
       message: "Admin stats fetched successfully",
     });
   } catch (error) {
@@ -17,4 +21,3 @@ export const getAdminStats = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching stats" });
   }
 };
-

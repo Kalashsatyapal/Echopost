@@ -9,10 +9,11 @@ import CreateBlog from "./pages/CreateBlog.jsx";
 import EditBlog from "./pages/EditBlog.jsx";
 import Profile from "./pages/Profile.jsx";
 import MyBlogs from "./pages/MyBlogs.jsx"; // ✅ new page
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard/SuperAdminDashboard.jsx";
 import Guidelines from "./pages/Guidelines";
 import ReportBlog from "./pages/ReportBlog.jsx";
+import ReportComment from "./pages/ReportComment.jsx";
 
 function App() {
   return (
@@ -75,7 +76,8 @@ function App() {
         }
       />
       <Route path="/guidelines" element={<Guidelines />} />
-      <Route path="/report/:id" element={<ReportBlog />} />
+      <Route path="/report-blog/:id" element={<ReportBlog />} />
+      <Route path="/report-comment/:id" element={<ReportComment />} />
     </Routes>
   );
 }

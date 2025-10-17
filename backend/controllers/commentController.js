@@ -14,7 +14,6 @@ export const addComment = async (req, res) => {
       text,
     });
 
-    // Return the populated comment
     const populatedComment = await comment.populate("author", "name profileImage");
     res.status(201).json(populatedComment);
   } catch (error) {
@@ -30,6 +29,18 @@ export const getComments = async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(comments);
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get Comment by ID
+export const getCommentById = async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.id).populate("author", "name profileImage");
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+    res.json(comment);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -65,6 +76,29 @@ export const deleteComment = async (req, res) => {
     await comment.deleteOne();
     res.json({ message: "Comment deleted" });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Report Comment
+export const reportComment = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const comment = await Comment.findById(req.params.id);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    const alreadyReported = comment.reports.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+    if (alreadyReported)
+      return res.status(400).json({ message: "You already reported this comment" });
+
+    comment.reports.push({ user: req.user._id, reason });
+    await comment.save();
+
+    res.json({ message: "Comment reported successfully", reportsCount: comment.reports.length });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,7 +1,7 @@
 import Blog from "../models/Blog.js";
 import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
-
+import Comment from "../models/Comment.js";
 // Create Blog
 export const createBlog = async (req, res) => {
   try {

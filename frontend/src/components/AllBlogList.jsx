@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
@@ -12,6 +12,8 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
   const [editingText, setEditingText] = useState({});
   const [commentCounts, setCommentCounts] = useState({});
   const [expandedContent, setExpandedContent] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (blogs && currentUserId) {
@@ -149,23 +151,13 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
     }
   };
 
-  // ===== New: Report Blog =====
-  const reportBlog = async (blogId) => {
-    const reason = prompt("Enter reason for reporting this blog:");
-    if (!reason) return;
-    try {
-      await axios.put(
-        `http://localhost:5000/api/blogs/report/${blogId}`,
-        { reason },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-      alert("Blog reported successfully.");
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to report blog.");
-    }
+  // ===== Navigate to Report Pages =====
+  const navigateReportBlog = (blogId) => {
+    navigate(`/report-blog/${blogId}`);
+  };
+
+  const navigateReportComment = (commentId) => {
+    navigate(`/report-comment/${commentId}`);
   };
 
   const getProfileImage = (profileImage) => {
@@ -298,12 +290,12 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
                   💬 {commentCount} Comments
                 </button>
 
-                <Link
-                  to={`/report/${b._id}`}
+                <button
+                  onClick={() => navigateReportBlog(b._id)}
                   className="text-red-500 hover:underline font-medium"
                 >
-                  🚨 Report
-                </Link>
+                  🚨 Report Blog
+                </button>
               </div>
 
               {/* Comments Section */}
@@ -346,41 +338,49 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
                             {c.author?.name}
                           </p>
                         </div>
-                        {c.author._id === currentUserId && (
-                          <div className="flex gap-1 text-xs text-gray-500">
-                            {editingCommentId === c._id ? (
-                              <>
-                                <button
-                                  onClick={() => updateComment(c._id, b._id)}
-                                  className="hover:text-green-600"
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => setEditingCommentId(null)}
-                                  className="hover:text-red-600"
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => editComment(c._id, c.text)}
-                                  className="hover:text-blue-600"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => deleteComment(c._id, b._id)}
-                                  className="hover:text-red-600"
-                                >
-                                  Delete
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        )}
+                        <div className="flex gap-1 text-xs text-gray-500">
+                          {c.author._id === currentUserId && (
+                            <>
+                              {editingCommentId === c._id ? (
+                                <>
+                                  <button
+                                    onClick={() => updateComment(c._id, b._id)}
+                                    className="hover:text-green-600"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingCommentId(null)}
+                                    className="hover:text-red-600"
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => editComment(c._id, c.text)}
+                                    className="hover:text-blue-600"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => deleteComment(c._id, b._id)}
+                                    className="hover:text-red-600"
+                                  >
+                                    Delete
+                                  </button>
+                                </>
+                              )}
+                            </>
+                          )}
+                          <button
+                            onClick={() => navigateReportComment(c._id)}
+                            className="hover:text-red-500"
+                          >
+                            🚨 Report
+                          </button>
+                        </div>
                       </div>
 
                       {editingCommentId === c._id ? (

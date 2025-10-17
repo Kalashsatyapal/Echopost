@@ -19,7 +19,12 @@ import logo from "../../assets/logo.webp";
 
 export default function SuperAdminDashboard() {
   const [requests, setRequests] = useState([]);
-  const [stats, setStats] = useState({ totalUsers: 0, totalBlogs: 0 });
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalBlogs: 0,
+    reportedBlogs: 0,
+    blockedBlogs: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
@@ -130,7 +135,8 @@ export default function SuperAdminDashboard() {
       <main className="max-w-7xl mx-auto px-6 py-10 space-y-10">
         {activeTab === "dashboard" && (
           <>
-            <div className="grid md:grid-cols-2 gap-8 mb-10">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+              {/* Total Users */}
               <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-lg flex items-center gap-5 hover:scale-105 transition-transform">
                 <div className="p-4 bg-indigo-100 rounded-xl">
                   <FaUsers className="text-indigo-600 text-4xl" />
@@ -145,6 +151,7 @@ export default function SuperAdminDashboard() {
                 </div>
               </div>
 
+              {/* Total Blogs */}
               <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-lg flex items-center gap-5 hover:scale-105 transition-transform">
                 <div className="p-4 bg-teal-100 rounded-xl">
                   <FaBlog className="text-teal-600 text-4xl" />
@@ -158,8 +165,39 @@ export default function SuperAdminDashboard() {
                   </p>
                 </div>
               </div>
+
+              {/* Reported Blogs */}
+              <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-lg flex items-center gap-5 hover:scale-105 transition-transform">
+                <div className="p-4 bg-red-100 rounded-xl">
+                  <FaFlag className="text-red-600 text-4xl" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-red-600">
+                    Reported Blogs
+                  </h3>
+                  <p className="text-5xl font-extrabold text-red-700">
+                    {stats.reportedBlogs}
+                  </p>
+                </div>
+              </div>
+
+              {/* Blocked Blogs */}
+              <div className="bg-white bg-opacity-90 p-8 rounded-2xl shadow-lg flex items-center gap-5 hover:scale-105 transition-transform">
+                <div className="p-4 bg-gray-100 rounded-xl">
+                  <FaFlag className="text-gray-600 text-4xl" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    Blocked Blogs
+                  </h3>
+                  <p className="text-5xl font-extrabold text-gray-800">
+                    {stats.blockedBlogs}
+                  </p>
+                </div>
+              </div>
             </div>
 
+            {/* Admin Requests */}
             <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center gap-2">
               📥 Admin Requests
             </h2>
@@ -212,6 +250,7 @@ export default function SuperAdminDashboard() {
             )}
           </>
         )}
+
         {activeTab === "users" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-indigo-700 mb-4">
@@ -220,6 +259,7 @@ export default function SuperAdminDashboard() {
             <ManageUsers />
           </section>
         )}
+
         {activeTab === "guidelines" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-indigo-700 mb-4">
@@ -228,8 +268,10 @@ export default function SuperAdminDashboard() {
             <EditGuidelines />
           </section>
         )}
+
         {activeTab === "tags" && <TagManagement token={token} />}{" "}
         {/* ✅ Replaced tags section */}
+
         {activeTab === "reported" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-red-600 mb-4">
@@ -238,6 +280,7 @@ export default function SuperAdminDashboard() {
             <ReportedBlogs />
           </section>
         )}
+
         {activeTab === "blocked" && (
           <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
             <h2 className="text-2xl font-bold text-red-600 mb-4">
