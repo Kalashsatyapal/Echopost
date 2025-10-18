@@ -25,9 +25,10 @@ export const addComment = async (req, res) => {
 };
 
 // Get Comments for Blog
+// Get Comments for Blog (excluding blocked)
 export const getComments = async (req, res) => {
   try {
-    const comments = await Comment.find({ blog: req.params.blogId })
+    const comments = await Comment.find({ blog: req.params.blogId, blocked: false })
       .populate("author", "name profileImage")
       .sort({ createdAt: -1 });
     res.json(comments);
@@ -120,6 +121,7 @@ export const getReportedComments = async (req, res) => {
       {
         $match: {
           "reports.0": { $exists: true },
+          blocked:false,
         },
       },
       {
@@ -142,6 +144,73 @@ export const getReportedComments = async (req, res) => {
     res.status(200).json(populatedComments);
   } catch (err) {
     console.error("Error fetching reported comments:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Block Comment (Admin/SuperAdmin only)
+export const blockComment = async (req, res) => {
+  try {
+    // Only admin or superadmin can block
+    if (!["admin", "superadmin"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    comment.blocked = true;
+    comment.blockedAt = new Date();
+    await comment.save();
+
+    res.json({ message: "Comment blocked successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get all blocked comments (SuperAdmin only)
+export const getBlockedComments = async (req, res) => {
+  try {
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const blockedComments = await Comment.find({ blocked: true })
+      .populate("author", "name profileImage")
+      .populate("blog", "title")
+      .sort({ blockedAt: -1 });
+
+    res.status(200).json(blockedComments);
+  } catch (err) {
+    console.error("Error fetching blocked comments:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// Unblock Comment (SuperAdmin only)
+export const unblockComment = async (req, res) => {
+  try {
+    // Only superadmin can unblock
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    if (!comment.blocked) {
+      return res.status(400).json({ message: "Comment is not blocked" });
+    }
+
+    // Unblock the comment
+    comment.blocked = false;
+    comment.blockedAt = null;
+    await comment.save();
+
+    res.status(200).json({ message: "Comment unblocked successfully", comment });
+  } catch (err) {
+    console.error("Error unblocking comment:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

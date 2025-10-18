@@ -7,6 +7,9 @@ import {
   reportComment,
   getCommentById,
   getReportedComments,
+  blockComment,
+  getBlockedComments,
+  unblockComment,
 } from "../controllers/commentController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -26,4 +29,15 @@ router
   .put(protect, updateComment)
   .delete(protect, deleteComment);
 
+// Block Comment by commentId
+router.put("/block/:commentId", protect, blockComment);
+
+// SuperAdmin only
+router.get("/superadmin/blocked-comments", protect, getBlockedComments);
+// SuperAdmin only: unblock comment
+router.put(
+  "/superadmin/unblock-comment/:commentId",
+  protect,
+  unblockComment
+);
 export default router;

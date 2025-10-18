@@ -3,22 +3,30 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function BlockedComments({ token }) {
+export default function BlockedComments() {
   const [blockedComments, setBlockedComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedComment, setExpandedComment] = useState(null);
+  const [notAuthorized, setNotAuthorized] = useState(false);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchBlockedComments = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/superadmin/blocked-comments",
+          "http://localhost:5000/api/comments/superadmin/blocked-comments",
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         setBlockedComments(res.data);
       } catch (err) {
-        console.error("Failed to fetch blocked comments:", err);
-        toast.error("Could not load blocked comments");
+        if (err.response && err.response.status === 403) {
+          setNotAuthorized(true); // Backend denied access
+        } else {
+          console.error("Failed to fetch blocked comments:", err);
+          toast.error("Could not load blocked comments");
+        }
       } finally {
         setLoading(false);
       }
@@ -33,7 +41,7 @@ export default function BlockedComments({ token }) {
     if (!window.confirm("Unblock this comment?")) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/superadmin/unblock-comment/${id}`,
+        `http://localhost:5000/api/comments/superadmin/unblock-comment/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -51,6 +59,13 @@ export default function BlockedComments({ token }) {
         <div className="animate-spin h-6 w-6 border-t-2 border-red-500 rounded-full mr-3" />
         Loading blocked comments...
       </div>
+    );
+
+  if (notAuthorized)
+    return (
+      <p className="text-red-500 text-center py-10 font-semibold">
+        🚫 You are not authorized to view blocked comments.
+      </p>
     );
 
   if (blockedComments.length === 0)
