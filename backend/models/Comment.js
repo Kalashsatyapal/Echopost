@@ -13,6 +13,8 @@ const commentSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+    blocked: { type: Boolean, default: false },
+    blockedAt: { type: Date },
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ import ReportedBlogs from "../../components/ReportedBlogs";
 import TagManagement from "./TagManagement"; // ✅ imported new component
 import BlockedBlogs from "./BlockedBlogs";
 import ReportedComments from "../../components/ReportedComments"; // 💬 imported ReportedComments component
+import BlockedComments from "./BlockedComments"; // 🚫 imported BlockedComments component
 import { useNavigate } from "react-router-dom";
 import {
   FaUsers,
@@ -117,6 +118,11 @@ export default function SuperAdminDashboard() {
               key: "reportedComments",
               label: "Reported Comments",
               icon: <FaCommentDots className="text-red-500" />,
+            },
+            {
+              key: "blockedComments",
+              label: "Blocked Comments",
+              icon: <FaCommentDots className="text-gray-600" />,
             },
           ].map((tab) => (
             <button
@@ -297,6 +303,14 @@ export default function SuperAdminDashboard() {
               💬 Reported Comments
             </h2>
             <ReportedComments />
+          </section>
+        )}
+        {activeTab === "blockedComments" && (
+          <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              🚫 Blocked Comments
+            </h2>
+            <BlockedComments token={token} />
           </section>
         )}
       </main>

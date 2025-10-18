@@ -35,8 +35,8 @@ export const createBlog = async (req, res) => {
     const blog = await Blog.create({
       title,
       content,
-      category,      // stored separately
-      subcategory,   // stored separately
+      category, // stored separately
+      subcategory, // stored separately
       author: req.user._id,
       image: imageUrl,
       tags: parsedTags,
