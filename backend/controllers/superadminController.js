@@ -134,3 +134,51 @@ export const getBlockedBlogs = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// ✅ Block User (Superadmin only)
+export const blockUser = async (req, res) => {
+  try {
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({ message: "Only superadmin can block users" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === "superadmin") {
+      return res.status(400).json({ message: "Cannot block another superadmin" });
+    }
+
+    user.isBlocked = true;
+    await user.save();
+
+    res.json({ message: `${user.name} has been blocked`, user });
+  } catch (err) {
+    console.error("Error blocking user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Unblock User (Superadmin only)
+export const unblockUser = async (req, res) => {
+  try {
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({ message: "Only superadmin can unblock users" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === "superadmin") {
+      return res.status(400).json({ message: "Cannot unblock another superadmin" });
+    }
+
+    user.isBlocked = false;
+    user.suspendedUntil = null;
+    await user.save();
+
+    res.json({ message: `${user.name} has been unblocked`, user });
+  } catch (err) {
+    console.error("Error unblocking user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -9,6 +9,8 @@ import {
   blockBlog,
   unblockBlog,
   getBlockedBlogs,
+  blockUser,
+  unblockUser,
 } from "../controllers/superadminController.js";
 const router = express.Router();
 
@@ -31,4 +33,9 @@ router.put("/block/:id", protect, blockBlog);
 router.put("/unblock/:id", protect, unblockBlog);
 
 router.get("/blocked-blogs", protect, getBlockedBlogs);
+
+// ✅ Block / Unblock users (Superadmin only)
+router.put("/block-user/:id", protect, blockUser);
+router.put("/unblock-user/:id", protect, unblockUser);
+
 export default router;

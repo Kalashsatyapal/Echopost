@@ -15,18 +15,32 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
     try {
       const result = await dispatch(login({ email, password }));
 
       if (result.meta.requestStatus === "fulfilled") {
+        const resData = result.payload;
+
+        // ✅ Check for backend blocked message
+        if (resData?.message === "User is blocked") {
+          setIsError(true);
+          setMessage("❌ User is blocked. Please contact admin.");
+          return;
+        }
+
         setIsError(false);
         setMessage("✅ Login successful! Redirecting to dashboard...");
         setTimeout(() => {
           navigate("/dashboard");
         }, 2000);
       } else {
+        const errMsg =
+          result?.error?.message === "Request failed with status code 403"
+            ? "❌ User is blocked. Please contact admin."
+            : "❌ Login failed. Please check your credentials.";
         setIsError(true);
-        setMessage("❌ Login failed. Please check your credentials.");
+        setMessage(errMsg);
       }
     } catch (error) {
       setIsError(true);
@@ -38,11 +52,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-100 to-indigo-200 flex flex-col items-center justify-center font-sans text-gray-800 px-4">
       {/* Header */}
       <header className="flex items-center gap-3 mb-6">
-        <img
-          src={logo}
-          alt="EchoPost Logo"
-          className="h-10 w-10 object-contain"
-        />
+        <img src={logo} alt="EchoPost Logo" className="h-10 w-10 object-contain" />
         <h1 className="text-3xl font-extrabold text-indigo-700 tracking-wide">
           EchoPost
         </h1>
