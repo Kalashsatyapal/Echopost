@@ -16,7 +16,7 @@ import { categories } from "../data/categories";
 import EditorToolbar from "../components/EditorToolbar";
 import Sidebar from "../components/Sidebar.jsx";
 import ProfileMenu from "../components/ProfileMenu.jsx";
-
+const API_URL=import.meta.env.VITE_API_URL;
 // ✅ Custom FontSize Extension
 const FontSize = Extension.create({
   name: "fontSize",
@@ -74,7 +74,7 @@ export default function CreateBlog() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await axios.get(`${API_URL}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data.user);
@@ -87,7 +87,7 @@ export default function CreateBlog() {
 
   // Fetch tags
   useEffect(() => {
-    axios.get("http://localhost:5000/api/tags")
+    axios.get(`${API_URL}/api/tags`)
       .then(res => setTags(res.data))
       .catch(console.error);
   }, []);
@@ -127,7 +127,7 @@ export default function CreateBlog() {
     selectedTags.forEach(tagId => formData.append("tags[]", tagId));
 
     try {
-      await axios.post("http://localhost:5000/api/blogs", formData, {
+      await axios.post(`${API_URL}/api/blogs`, formData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
       });
       setMessage("✅ Blog published successfully!");

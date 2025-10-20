@@ -1,12 +1,12 @@
 export default function UserProfileImage({ user, size = 32 }) {
   if (!user) return null;
-
+ const API_URL = import.meta.env.VITE_API_URL;
   const getProfileImage = () => {
     if (!user.profileImage) return null;
     if (user.profileImage.startsWith("data:image") || user.profileImage.startsWith("http")) return user.profileImage;
     const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
     if (base64Pattern.test(user.profileImage)) return `data:image/png;base64,${user.profileImage}`;
-    return `http://localhost:5000${user.profileImage}`;
+    return `${API_URL}${user.profileImage}`;
   };
 
   const imageUrl = getProfileImage();

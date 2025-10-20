@@ -1,5 +1,5 @@
 import CommentItem from "./CommentItem.jsx";
-
+ const API_URL = import.meta.env.VITE_API_URL;
 export default function CommentsSection({
   blogId,
   comments,

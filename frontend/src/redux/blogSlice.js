@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// API base URL
-const API_URL = "http://localhost:5000/api/blogs";
+// Use Vite environment variable for API URL
+const API_URL = import.meta.env.VITE_API_URL + "/api/blogs";
 
 // ✅ Fetch all blogs
 export const fetchBlogs = createAsyncThunk("blogs/fetchBlogs", async () => {
@@ -11,13 +11,16 @@ export const fetchBlogs = createAsyncThunk("blogs/fetchBlogs", async () => {
 });
 
 // ✅ Create blog
-export const createBlog = createAsyncThunk("blogs/createBlog", async (data, { getState }) => {
-  const token = getState().auth.token;
-  const res = await axios.post(API_URL, data, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-});
+export const createBlog = createAsyncThunk(
+  "blogs/createBlog",
+  async (data, { getState }) => {
+    const token = getState().auth.token;
+    const res = await axios.post(API_URL, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  }
+);
 
 const blogSlice = createSlice({
   name: "blogs",

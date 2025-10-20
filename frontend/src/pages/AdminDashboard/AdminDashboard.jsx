@@ -25,7 +25,7 @@ export default function AdminDashboard() {
   // Fetch stats
   const fetchStats = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/stats", {
+      const res = await axios.get(`http://localhost:5000/api/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   // Fetch tags
   const fetchTags = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tags");
+      const res = await axios.get(`http://localhost:5000/api/tags`);
       setTags(res.data);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/tags",
+        `http://localhost:5000/api/tags`,
         { name, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );

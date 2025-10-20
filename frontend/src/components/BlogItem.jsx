@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import CommentsSection from "./CommentsSection.jsx";
 import LikeButton from "./LikeButton.jsx";
 import { useState } from "react";
-
+ const API_URL = import.meta.env.VITE_API_URL;
 export default function BlogItem({
   blog,
   isLiked,
@@ -29,7 +29,7 @@ export default function BlogItem({
   const getBlogImage = () => {
     if (!blog.image) return null;
     if (blog.image.startsWith("data:image") || blog.image.startsWith("http")) return blog.image;
-    return `http://localhost:5000${blog.image}`;
+    return `${API_URL}${blog.image}`;
   };
 
   const blogImage = getBlogImage();

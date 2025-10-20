@@ -5,11 +5,11 @@ import toast from "react-hot-toast";
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ const API_URL = import.meta.env.VITE_API_URL;
   // ✅ Fetch all users (SuperAdmin only)
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/superadmin/users", {
+      const res = await axios.get(`${API_URL}/api/superadmin/users`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setUsers(res.data);
@@ -25,7 +25,7 @@ export default function ManageUsers() {
   const handleRoleChange = async (id, role) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/superadmin/users/${id}/role`,
+        `${API_URL}/api/superadmin/users/${id}/role`,
         { role },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -41,8 +41,8 @@ export default function ManageUsers() {
   const handleBlockToggle = async (id, shouldBlock) => {
     try {
       const endpoint = shouldBlock
-        ? `http://localhost:5000/api/superadmin/block-user/${id}`
-        : `http://localhost:5000/api/superadmin/unblock-user/${id}`;
+        ? `${API_URL}/api/superadmin/block-user/${id}`
+        : `${API_URL}/api/superadmin/unblock-user/${id}`;
 
       const res = await axios.put(
         endpoint,

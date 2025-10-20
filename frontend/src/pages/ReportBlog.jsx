@@ -12,11 +12,12 @@ export default function ReportBlog() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/blogs/${id}`);
+        const res = await axios.get(`${API_URL}/api/blogs/${id}`);
         setBlog(res.data);
       } catch (err) {
         console.error(err);
@@ -26,7 +27,7 @@ export default function ReportBlog() {
       }
     };
     fetchBlog();
-  }, [id]);
+  }, [id, API_URL]);
 
   const handleReport = async (e) => {
     e.preventDefault();
@@ -40,7 +41,7 @@ export default function ReportBlog() {
 
     try {
       await axios.put(
-        `http://localhost:5000/api/blogs/report/${id}`,
+        `${API_URL}/api/blogs/report/${id}`,
         { reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );

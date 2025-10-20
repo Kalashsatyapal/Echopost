@@ -9,11 +9,12 @@ export default function ReportedComments() {
   const [loading, setLoading] = useState(true);
   const [expandedComment, setExpandedComment] = useState(null);
   const token = localStorage.getItem("token");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchReportedComments = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/comments/reported", {
+        const res = await axios.get(`${API_URL}/api/comments/reported`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setReportedComments(res.data);
@@ -36,7 +37,7 @@ export default function ReportedComments() {
     if (!window.confirm("Are you sure you want to block this comment?")) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/comments/block/${id}`,
+        `${API_URL}/api/comments/block/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -8,14 +8,14 @@ export default function BlockedComments() {
   const [loading, setLoading] = useState(true);
   const [expandedComment, setExpandedComment] = useState(null);
   const [notAuthorized, setNotAuthorized] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchBlockedComments = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/comments/superadmin/blocked-comments",
+          `${API_URL}/api/comments/superadmin/blocked-comments`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -41,7 +41,7 @@ export default function BlockedComments() {
     if (!window.confirm("Unblock this comment?")) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/comments/superadmin/unblock-comment/${id}`,
+        `${API_URL}/api/comments/superadmin/unblock-comment/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

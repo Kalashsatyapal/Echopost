@@ -32,10 +32,10 @@ export default function SuperAdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const fetchRequests = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin-requests", {
+      const res = await axios.get(`${API_URL}/api/admin-requests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRequests(res.data);
@@ -46,7 +46,7 @@ export default function SuperAdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/stats", {
+      const res = await axios.get(`${API_URL}/api/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);

@@ -10,11 +10,12 @@ export default function ReportedBlogs() {
   const [expandedBlog, setExpandedBlog] = useState(null);
   const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("role"); // ✅ store role client-side
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchReportedBlogs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/superadmin/reported", {
+        const res = await axios.get(`${API_URL}/api/superadmin/reported`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setReportedBlogs(res.data);
@@ -34,7 +35,7 @@ export default function ReportedBlogs() {
   // ✅ Block blog
   const handleBlock = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/superadmin/block/${id}`, {}, {
+      await axios.put(`${API_URL}/api/superadmin/block/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Blog blocked");
@@ -49,7 +50,7 @@ export default function ReportedBlogs() {
   // ✅ Unblock blog
   const handleUnblock = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/superadmin/unblock/${id}`, {}, {
+      await axios.put(`${API_URL}/api/superadmin/unblock/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Blog unblocked");

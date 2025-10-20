@@ -4,6 +4,8 @@ import { login } from "../redux/authSlice.js";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL; // ✅ Production-ready API URL
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -24,14 +24,14 @@ export default function BlogDetail() {
   const [editingText, setEditingText] = useState({});
   const [isLiked, setIsLiked] = useState(false);
   const [likeAnimating, setLikeAnimating] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const getImageSrc = (img) => {
     if (!img) return "/default-avatar.png";
     if (typeof img !== "string") return "/default-avatar.png";
     if (img.startsWith("data:") || img.startsWith("http")) return img;
     const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
     if (base64Pattern.test(img)) return `data:image/png;base64,${img}`;
-    if (img.startsWith("/")) return `http://localhost:5000${img}`;
+    if (img.startsWith("/")) return `${API_URL}${img}`;
     return img;
   };
 
@@ -49,7 +49,9 @@ export default function BlogDetail() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const blogRes = await axios.get(`http://localhost:5000/api/blogs/${id}`);
+        const blogRes = await axios.get(
+          `${API_URL}/api/blogs/${id}`
+        );
         const blogData = blogRes.data;
         setBlog(blogData);
         setIsLiked(Boolean(blogData?.likes?.includes(currentUserId)));
@@ -59,7 +61,7 @@ export default function BlogDetail() {
           if (typeof blogData.author === "string") {
             // Fetch full author details if it's just an ID
             const authorRes = await axios.get(
-              `http://localhost:5000/api/users/${blogData.author}`
+              `${API_URL}/api/users/${blogData.author}`
             );
             setBlogAuthor(authorRes.data);
           } else {
@@ -69,7 +71,7 @@ export default function BlogDetail() {
 
         // Fetch comments
         const commentsRes = await axios.get(
-          `http://localhost:5000/api/comments/${id}`
+          `${API_URL}/api/comments/${id}`
         );
         setComments(Array.isArray(commentsRes.data) ? commentsRes.data : []);
       } catch (err) {
@@ -84,7 +86,7 @@ export default function BlogDetail() {
     if (!blog) return;
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/blogs/like/${id}`,
+        `${API_URL}/api/blogs/like/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -102,7 +104,7 @@ export default function BlogDetail() {
     if (!text) return;
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${id}`,
+        `${API_URL}/api/comments/${id}`,
         { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -123,11 +125,13 @@ export default function BlogDetail() {
     if (!text) return;
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/comments/${commentId}`,
+        `${API_URL}/api/comments/${commentId}`,
         { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setComments((prev) => prev.map((c) => (c._id === commentId ? res.data : c)));
+      setComments((prev) =>
+        prev.map((c) => (c._id === commentId ? res.data : c))
+      );
       setEditingCommentId(null);
       setEditingText((prev) => ({ ...prev, [commentId]: "" }));
     } catch (err) {
@@ -137,7 +141,7 @@ export default function BlogDetail() {
 
   const deleteComment = async (commentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${commentId}`, {
+      await axios.delete(`${API_URL}/api/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setComments((prev) => prev.filter((c) => c._id !== commentId));
@@ -160,7 +164,11 @@ export default function BlogDetail() {
       {/* Header */}
       <header className="flex justify-between items-center p-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="EchoPost Logo" className="h-10 w-10 object-contain" />
+          <img
+            src={logo}
+            alt="EchoPost Logo"
+            className="h-10 w-10 object-contain"
+          />
           <h1 className="text-2xl font-extrabold text-indigo-700">EchoPost</h1>
         </div>
         <Link
@@ -199,8 +207,12 @@ export default function BlogDetail() {
           />
         )}
 
-        <h1 className="text-4xl font-extrabold text-indigo-700 mb-3">{blog.title}</h1>
-        <p className="text-sm text-teal-600 mb-5 font-medium">{blog.category}</p>
+        <h1 className="text-4xl font-extrabold text-indigo-700 mb-3">
+          {blog.title}
+        </h1>
+        <p className="text-sm text-teal-600 mb-5 font-medium">
+          {blog.category}
+        </p>
 
         <div
           className="prose max-w-full text-gray-700 mb-8"
@@ -253,8 +265,9 @@ export default function BlogDetail() {
         <ul className="space-y-4">
           {comments.map((c) => {
             const authorId = getAuthorId(c.author);
-            const isAuthor =
-              Boolean(authorId && currentUserId && authorId === currentUserId);
+            const isAuthor = Boolean(
+              authorId && currentUserId && authorId === currentUserId
+            );
             const commentAuthor =
               typeof c.author === "object" ? c.author : { name: "User" };
             return (
@@ -341,7 +354,8 @@ export default function BlogDetail() {
       </div>
 
       <footer className="text-center py-6 text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} EchoPost. Built for creators, by creators.
+        &copy; {new Date().getFullYear()} EchoPost. Built for creators, by
+        creators.
       </footer>
 
       <style>

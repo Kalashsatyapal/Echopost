@@ -11,11 +11,12 @@ export default function ReportComment() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchComment = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/comments/comment/${id}`);
+        const res = await axios.get(`${API_URL}/api/comments/comment/${id}`);
         setComment(res.data);
       } catch (err) {
         console.error(err);
@@ -25,7 +26,7 @@ export default function ReportComment() {
       }
     };
     fetchComment();
-  }, [id]);
+  }, [id, API_URL]);
 
   const handleReport = async (e) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export default function ReportComment() {
 
     try {
       await axios.put(
-        `http://localhost:5000/api/comments/report/${id}`,
+        `${API_URL}/api/comments/report/${id}`,
         { reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,9 +66,7 @@ export default function ReportComment() {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">🚨 Report Comment</h2>
 
       <div className="mb-4 border-b pb-2">
-        <p className="text-gray-700 text-sm italic">
-          "{comment.text}"
-        </p>
+        <p className="text-gray-700 text-sm italic">"{comment.text}"</p>
         <div className="mt-2 flex items-center gap-2">
           {comment.author?.profileImage && (
             <img

@@ -4,11 +4,11 @@ import axios from "axios";
 export default function Guidelines() {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   // Fetch guidelines from backend
   const fetchGuidelines = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/guidelines");
+      const res = await axios.get(`${API_URL}/api/guidelines`);
       setSections(res.data.sections);
     } catch (err) {
       console.error("Failed to fetch guidelines:", err);

@@ -7,11 +7,11 @@ export default function BlockedBlogs({ token }) {
   const [blockedBlogs, setBlockedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedBlog, setExpandedBlog] = useState(null);
-
+ const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchBlockedBlogs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/superadmin/blocked-blogs", {
+        const res = await axios.get(`${API_URL}/api/superadmin/blocked-blogs`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBlockedBlogs(res.data);
@@ -31,7 +31,7 @@ export default function BlockedBlogs({ token }) {
     if (!window.confirm("Unblock this blog?")) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/superadmin/unblock/${id}`,
+        `${API_URL}/api/superadmin/unblock/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

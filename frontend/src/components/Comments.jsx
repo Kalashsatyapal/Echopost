@@ -6,10 +6,10 @@ export default function Comments({ blogId, currentUserId, onCommentChange }) {
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
-
+ const API_URL = import.meta.env.VITE_API_URL;
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/comments/${blogId}`);
+      const res = await axios.get(`${API_URL}/api/comments/${blogId}`);
       setComments(res.data);
       if (onCommentChange) onCommentChange(res.data.length);
     } catch (err) {
@@ -25,7 +25,7 @@ export default function Comments({ blogId, currentUserId, onCommentChange }) {
     if (!newComment.trim()) return;
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${blogId}`,
+        `${API_URL}/api/comments/${blogId}`,
         { text: newComment },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -46,7 +46,7 @@ export default function Comments({ blogId, currentUserId, onCommentChange }) {
     if (!editingText.trim()) return;
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/comments/${id}`,
+        `${API_URL}/api/comments/${id}`,
         { text: editingText },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -60,7 +60,7 @@ export default function Comments({ blogId, currentUserId, onCommentChange }) {
 
   const handleDeleteComment = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${id}`, {
+      await axios.delete(`${API_URL}/api/comments/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setComments(comments.filter(c => c._id !== id));

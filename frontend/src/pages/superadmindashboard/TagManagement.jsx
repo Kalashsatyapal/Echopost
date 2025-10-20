@@ -8,10 +8,10 @@ export default function TagManagement({ token }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editTag, setEditTag] = useState(null);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const fetchTags = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tags");
+      const res = await axios.get(`${API_URL}/api/tags`);
       setTags(res.data);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -22,7 +22,7 @@ export default function TagManagement({ token }) {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/tags",
+        `${API_URL}/api/tags`,
         { name, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -46,7 +46,7 @@ export default function TagManagement({ token }) {
   const handleDeleteTag = async (id) => {
     if (!window.confirm("Delete this tag?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/tags/${id}`, {
+      await axios.delete(`${API_URL}/api/tags/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Tag deleted");
@@ -60,7 +60,7 @@ export default function TagManagement({ token }) {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/tags/${editTag._id}`,
+        `${API_URL}/api/tags/${editTag._id}`,
         { name: editTag.name, description: editTag.description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -80,7 +80,9 @@ export default function TagManagement({ token }) {
 
   return (
     <section className="bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg mt-6">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-4">🏷️ Manage Tags</h2>
+      <h2 className="text-2xl font-bold text-indigo-700 mb-4">
+        🏷️ Manage Tags
+      </h2>
 
       {/* Add Tag Form */}
       <form
@@ -124,9 +126,7 @@ export default function TagManagement({ token }) {
             {tags.map((tag) => (
               <tr key={tag._id} className="border-t hover:bg-gray-50">
                 <td className="p-2">{tag.name}</td>
-                <td className="p-2 text-gray-600">
-                  {tag.description || "—"}
-                </td>
+                <td className="p-2 text-gray-600">{tag.description || "—"}</td>
                 <td className="p-2 text-gray-500">
                   {new Date(tag.createdAt).toLocaleDateString()}
                 </td>

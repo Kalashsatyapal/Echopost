@@ -6,7 +6,7 @@ export default function ProfileMenu({ user, getProfileImage }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const menuRef = useRef();
   const navigate = useNavigate();
-
+ const API_URL = import.meta.env.VITE_API_URL;
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {

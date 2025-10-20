@@ -6,6 +6,8 @@ import Sidebar from "../components/Sidebar.jsx";
 import ProfileMenu from "../components/ProfileMenu.jsx";
 import BlogList from "../components/BlogList.jsx";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function MyBlogs() {
   const [blogs, setBlogs] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,7 +30,7 @@ export default function MyBlogs() {
     try {
       if (!token) return;
 
-      const res = await axios.get("http://localhost:5000/api/users/me", {
+      const res = await axios.get(`${API_URL}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data.user);
@@ -42,7 +44,7 @@ export default function MyBlogs() {
       // Comment counts
       res.data.blogs.forEach(async (b) => {
         try {
-          const resC = await axios.get(`http://localhost:5000/api/comments/${b._id}`);
+          const resC = await axios.get(`${API_URL}/api/comments/${b._id}`);
           setCommentCounts((prev) => ({ ...prev, [b._id]: resC.data.length }));
         } catch {}
       });
@@ -66,14 +68,14 @@ export default function MyBlogs() {
       return user.profileImage;
     const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
     if (base64Pattern.test(user.profileImage)) return `data:image/png;base64,${user.profileImage}`;
-    return `http://localhost:5000${user.profileImage}`;
+    return `${API_BASE_URL}${user.profileImage}`;
   };
 
   // Delete a blog
   const handleDelete = async (blogId) => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${blogId}`, {
+      await axios.delete(`${API_URL}/api/blogs/${blogId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBlogs(blogs.filter((b) => b._id !== blogId));
@@ -87,7 +89,7 @@ export default function MyBlogs() {
   const toggleLike = async (blogId) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/blogs/like/${blogId}`,
+        `${API_URL}/api/blogs/like/${blogId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -120,7 +122,7 @@ export default function MyBlogs() {
     // Fetch comments only if not loaded yet
     if (!commentsData[blogId]) {
       try {
-        const res = await axios.get(`http://localhost:5000/api/comments/${blogId}`);
+        const res = await axios.get(`${API_BASE_URL}/api/comments/${blogId}`);
         setCommentsData((prev) => ({ ...prev, [blogId]: res.data }));
       } catch (err) {
         console.error(err);
@@ -133,7 +135,7 @@ export default function MyBlogs() {
     if (!text) return;
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${blogId}`,
+        `${API_URL}/api/comments/${blogId}`,
         { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -158,7 +160,7 @@ export default function MyBlogs() {
   const saveEditComment = async (blogId, commentId) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/comments/${commentId}`,
+        `${API_URL}/api/comments/${commentId}`,
         { text: editCommentText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -179,7 +181,7 @@ export default function MyBlogs() {
   const deleteComment = async (blogId, commentId) => {
     if (!window.confirm("Delete this comment?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${commentId}`, {
+      await axios.delete(`${API_URL}/api/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCommentsData((prev) => ({
@@ -237,7 +239,7 @@ export default function MyBlogs() {
             commentCounts={commentCounts}
             currentUserId={currentUserId}
             toggleLike={toggleLike}
-            toggleComments={toggleComments}  // Updated function
+            toggleComments={toggleComments}
             handleDelete={handleDelete}
             setNewCommentText={setNewCommentText}
             newCommentText={newCommentText}

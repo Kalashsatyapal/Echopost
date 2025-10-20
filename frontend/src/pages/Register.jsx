@@ -15,13 +15,14 @@ export default function Register() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       if (role === "admin") {
-        await axios.post("http://localhost:5000/api/admin-requests", {
+        await axios.post(`${API_URL}/api/admin-requests`, {
           name,
           email,
           password,

@@ -12,7 +12,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
   const [editingText, setEditingText] = useState({});
   const [commentCounts, setCommentCounts] = useState({});
   const [expandedContent, setExpandedContent] = useState({});
-
+ const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
       blogs.forEach(async (b) => {
         try {
           const res = await axios.get(
-            `http://localhost:5000/api/comments/${b._id}`
+            `${API_URL}/api/comments/${b._id}`
           );
           setCommentCounts((prev) => ({ ...prev, [b._id]: res.data.length }));
         } catch (err) {
@@ -38,7 +38,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
   const toggleLike = async (blogId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/blogs/like/${blogId}`,
+        `${API_URL}/api/blogs/like/${blogId}`,
         {},
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -67,7 +67,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
     if (!openComments[blogId]) {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/comments/${blogId}`
+          `${API_URL}/api/comments/${blogId}`
         );
         setCommentsData((prev) => ({ ...prev, [blogId]: res.data }));
       } catch (err) {
@@ -86,7 +86,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
     if (!text) return;
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${blogId}`,
+        `${API_URL}/api/comments/${blogId}`,
         { text },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -117,7 +117,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
     if (!text) return;
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/comments/${commentId}`,
+        `${API_URL}/api/comments/${commentId}`,
         { text },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -135,7 +135,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
 
   const deleteComment = async (commentId, blogId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${commentId}`, {
+      await axios.delete(`${API_URL}/api/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setCommentsData((prev) => ({
@@ -163,7 +163,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
   const getProfileImage = (profileImage) => {
     if (!profileImage) return "/default-avatar.png";
     if (profileImage.startsWith("http")) return profileImage;
-    return `http://localhost:5000${profileImage}`;
+    return `${API_URL}${profileImage}`;
   };
 
   const formatDate = (dateStr) => {
@@ -213,7 +213,7 @@ export default function AllBlogList({ blogs, currentUserId, refreshBlogs }) {
                   src={
                     b.image.startsWith("http")
                       ? b.image
-                      : `http://localhost:5000${b.image}`
+                      : `${API_URL}${b.image}`
                   }
                   alt={b.title}
                   className="w-full h-32 object-cover rounded mb-2"

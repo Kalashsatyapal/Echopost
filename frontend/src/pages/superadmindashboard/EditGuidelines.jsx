@@ -5,11 +5,11 @@ import toast from "react-hot-toast";
 
 export default function EditGuidelines() {
   const [sections, setSections] = useState([]);
-
+ const API_URL = import.meta.env.VITE_API_URL;
   // Fetch guidelines
   const fetchGuidelines = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/guidelines");
+      const res = await axios.get(`${API_URL}/api/guidelines`);
       setSections(res.data.sections);
     } catch (err) {
       console.error(err);
@@ -42,7 +42,7 @@ export default function EditGuidelines() {
   const handleSave = async () => {
     try {
       await axios.put(
-        "http://localhost:5000/api/guidelines",
+        `${API_URL}/api/guidelines`,
         { sections },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
