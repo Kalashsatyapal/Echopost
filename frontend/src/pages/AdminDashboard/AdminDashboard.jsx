@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import ReportedBlogs from "../../components/ReportedBlogs";
-import ReportedComments from "../../components/ReportedComments";
+import ReportedBlogs from "../superadmindashboard/ReportedBlogs";
+import ReportedComments from "../superadmindashboard/ReportedComments";
 import { FaCommentDots } from "react-icons/fa";
 
 export default function AdminDashboard() {

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import ManageUsers from "../../components/ManageUsers";
-import EditGuidelines from "../../components/EditGuidelines";
-import ReportedBlogs from "../../components/ReportedBlogs";
+import ManageUsers from "./ManageUsers";
+import EditGuidelines from "./EditGuidelines";
+import ReportedBlogs from "./ReportedBlogs";
 import TagManagement from "./TagManagement"; // ✅ imported new component
 import BlockedBlogs from "./BlockedBlogs";
-import ReportedComments from "../../components/ReportedComments"; // 💬 imported ReportedComments component
+import ReportedComments from "./ReportedComments"; // 💬 imported ReportedComments component
 import BlockedComments from "./BlockedComments"; // 🚫 imported BlockedComments component
 import { useNavigate } from "react-router-dom";
 import {
