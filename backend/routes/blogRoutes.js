@@ -9,7 +9,7 @@ import {
   toggleLike,
   reportBlog,
 } from "../controllers/blogController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
