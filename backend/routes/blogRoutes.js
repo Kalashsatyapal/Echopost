@@ -1,5 +1,5 @@
 import express from "express";
-import upload from "../Middleware/upload.js";
+import upload from "../middleware/upload.js";
 import {
   createBlog,
   getBlogs,
@@ -9,7 +9,7 @@ import {
   toggleLike,
   reportBlog,
 } from "../controllers/blogController.js";
-import { protect } from "../Middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
