@@ -50,10 +50,13 @@ export default function EditBlog() {
   const [content, setContent] = useState("");
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [image, setImage] = useState(null); // only full image
+  const [image, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+
+  // Inline message state
+  const [message, setMessage] = useState({ text: "", type: "" }); // type: "success" | "error"
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, Color, FontFamily, FontSize, TextAlign.configure({ types: ["heading", "paragraph"] })],
@@ -87,7 +90,7 @@ export default function EditBlog() {
         setSelectedTags(data.tags?.map((t) => t._id) || []);
         if (editor) editor.commands.setContent(data.content);
       })
-      .catch((err) => { console.error(err); alert("Failed to load blog."); });
+      .catch((err) => { console.error(err); setMessage({ text: "Failed to load blog.", type: "error" }); });
   }, [id, editor]);
 
   const handleTagToggle = (tagId) =>
@@ -100,7 +103,10 @@ export default function EditBlog() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!title || !mainCategory || !content) { alert("Fill all required fields"); return; }
+    if (!title || !mainCategory || !content) { 
+      setMessage({ text: "Please fill all required fields.", type: "error" }); 
+      return; 
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -114,11 +120,11 @@ export default function EditBlog() {
       await axios.put(`${API_URL}/api/blogs/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
-      alert("Blog updated successfully!");
-      navigate("/dashboard");
+      setMessage({ text: "Blog updated successfully!", type: "success" });
+      setTimeout(() => navigate("/dashboard"), 1500); // navigate after showing message
     } catch (err) {
       console.error(err);
-      alert("Failed to update blog.");
+      setMessage({ text: "Failed to update blog.", type: "error" });
     }
   };
 
@@ -141,6 +147,13 @@ export default function EditBlog() {
 
         <div className="px-6 py-6 w-full max-w-4xl mx-auto">
           <form onSubmit={handleUpdate} className="flex flex-col gap-4 bg-white p-6 rounded shadow">
+            {/* Inline message */}
+            {message.text && (
+              <div className={`p-3 rounded ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                {message.text}
+              </div>
+            )}
+
             <input type="text" placeholder="Title" className="w-full p-3 border rounded" value={title} onChange={(e) => setTitle(e.target.value)} />
 
             {/* Categories */}
