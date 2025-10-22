@@ -6,12 +6,13 @@ import getCroppedImg from "../utils/cropImage";
 export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [aspect, setAspect] = useState(null); // Freeform cropping
+  const [aspect, setAspect] = useState(null); // freeform cropping
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [cropShape, setCropShape] = useState("rect");
 
-  const onCropComplete = useCallback((_, croppedAreaPixels) => {
-    setCroppedAreaPixels(croppedAreaPixels);
+  const onCropComplete = useCallback((_, areaPixels) => {
+    setCroppedAreaPixels(areaPixels);
   }, []);
 
   const handleCropSave = async () => {
@@ -54,26 +55,15 @@ export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }
             image={image}
             crop={crop}
             zoom={zoom}
-            aspect={aspect} // freeform crop
+            aspect={aspect} // freeform area selection
+            cropShape={cropShape}
+            showGrid={true}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
-            cropShape="rect"
-            showGrid={true}
             restrictPosition={false}
             zoomWithScroll
-            cropSize={undefined} // allows free dragging/resizing from edges
-            style={{
-              containerStyle: {
-                borderRadius: "10px",
-                background: "#f3f4f6",
-              },
-              cropAreaStyle: {
-                border: "2px dashed #2563eb",
-                borderRadius: "6px",
-                boxShadow: "0 0 0 10000px rgba(0,0,0,0.4)",
-              },
-            }}
+            objectFit="contain"
           />
         </div>
 
