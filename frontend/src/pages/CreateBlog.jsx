@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,13 +9,12 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import { Extension } from "@tiptap/core";
 import TextAlign from "@tiptap/extension-text-align";
-import Cropper from "react-easy-crop";
-import getCroppedImg from "../utils/cropImage";
 import Modal from "react-modal";
 import { categories } from "../data/categories";
 import EditorToolbar from "../components/EditorToolbar";
 import Sidebar from "../components/Sidebar.jsx";
 import ProfileMenu from "../components/ProfileMenu.jsx";
+import ImageCropperModal from "../components/ImageCropperModal.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -70,9 +69,6 @@ export default function CreateBlog() {
   const [croppedImage, setCroppedImage] = useState(null);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [imageChoiceModalOpen, setImageChoiceModalOpen] = useState(false);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [message, setMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -133,22 +129,6 @@ export default function CreateBlog() {
     );
   };
 
-  // Crop callbacks
-  const onCropComplete = useCallback(
-    (_, pixels) => setCroppedAreaPixels(pixels),
-    []
-  );
-
-  const showCroppedImage = useCallback(async () => {
-    try {
-      const blob = await getCroppedImg(image, croppedAreaPixels);
-      setCroppedImage(blob);
-      setCropModalOpen(false);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [image, croppedAreaPixels]);
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -158,7 +138,6 @@ export default function CreateBlog() {
   };
 
   const handleUseFullImage = () => {
-    // Convert the selected image to a blob directly
     fetch(image)
       .then((res) => res.blob())
       .then((blob) => {
@@ -310,7 +289,7 @@ export default function CreateBlog() {
               />
             )}
 
-            {/* Image Choice Modal */}
+            {/* Choice Modal */}
             <Modal
               isOpen={imageChoiceModalOpen}
               onRequestClose={() => setImageChoiceModalOpen(false)}
@@ -347,66 +326,13 @@ export default function CreateBlog() {
               </div>
             </Modal>
 
-            {/* Crop Modal */}
-            <Modal
+            {/* Cropper Modal (Component) */}
+            <ImageCropperModal
+              image={image}
               isOpen={cropModalOpen}
-              onRequestClose={() => setCropModalOpen(false)}
-              ariaHideApp={false}
-              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60"
-            >
-              <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-lg">
-                <h2 className="text-lg font-semibold mb-3">Adjust your image</h2>
-                <div className="relative w-full h-72 bg-gray-200 rounded overflow-hidden">
-                  <Cropper
-                    image={image}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={null} // ✅ Free form cropping like mobile
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                    cropShape="rect"
-                    showGrid={false}
-                  />
-                </div>
-                <div className="flex flex-col gap-3 mt-4">
-                  <input
-                    type="range"
-                    min={1}
-                    max={4}
-                    step={0.1}
-                    value={zoom}
-                    onChange={(e) => setZoom(e.target.value)}
-                  />
-                  <div className="flex justify-between">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCrop({ x: 0, y: 0 });
-                        setZoom(1);
-                      }}
-                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                    >
-                      Reset
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCropModalOpen(false)}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={showCroppedImage}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      Crop & Save
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Modal>
+              onClose={() => setCropModalOpen(false)}
+              onCropDone={(blob) => setCroppedImage(blob)}
+            />
 
             {/* Tags */}
             <div className="border p-3 rounded">
@@ -432,7 +358,6 @@ export default function CreateBlog() {
               </div>
             </div>
 
-            {/* Toolbar */}
             <EditorToolbar editor={editor} />
             <EditorContent editor={editor} />
 
@@ -443,6 +368,7 @@ export default function CreateBlog() {
               Publish
             </button>
           </form>
+
           {message && (
             <div className="mt-4 text-green-600 font-semibold">{message}</div>
           )}
