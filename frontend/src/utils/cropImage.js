@@ -25,7 +25,6 @@ export default async function getCroppedImg(imageSrc, pixelCrop) {
   });
 }
 
-// Helper to create an HTMLImageElement
 async function createImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();

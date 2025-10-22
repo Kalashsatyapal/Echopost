@@ -6,7 +6,7 @@ import getCroppedImg from "../utils/cropImage";
 export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [aspect, setAspect] = useState(null); // freeform
+  const [aspect, setAspect] = useState(null); // Freeform cropping
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
@@ -16,6 +16,7 @@ export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }
 
   const handleCropSave = async () => {
     try {
+      if (!croppedAreaPixels) return;
       const blob = await getCroppedImg(image, croppedAreaPixels);
       const preview = URL.createObjectURL(blob);
       setPreviewUrl(preview);
@@ -32,7 +33,6 @@ export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }
     setAspect(null);
   };
 
-  // Cleanup created preview URLs
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -54,7 +54,7 @@ export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }
             image={image}
             crop={crop}
             zoom={zoom}
-            aspect={aspect}
+            aspect={aspect} // freeform crop
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
@@ -62,6 +62,18 @@ export default function ImageCropperModal({ image, isOpen, onClose, onCropDone }
             showGrid={true}
             restrictPosition={false}
             zoomWithScroll
+            cropSize={undefined} // allows free dragging/resizing from edges
+            style={{
+              containerStyle: {
+                borderRadius: "10px",
+                background: "#f3f4f6",
+              },
+              cropAreaStyle: {
+                border: "2px dashed #2563eb",
+                borderRadius: "6px",
+                boxShadow: "0 0 0 10000px rgba(0,0,0,0.4)",
+              },
+            }}
           />
         </div>
 
