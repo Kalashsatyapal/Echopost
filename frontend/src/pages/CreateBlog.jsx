@@ -16,11 +16,15 @@ import { categories } from "../data/categories";
 import EditorToolbar from "../components/EditorToolbar";
 import Sidebar from "../components/Sidebar.jsx";
 import ProfileMenu from "../components/ProfileMenu.jsx";
-const API_URL=import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 // ✅ Custom FontSize Extension
 const FontSize = Extension.create({
   name: "fontSize",
-  addOptions() { return { types: ["textStyle"] }; },
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
   addGlobalAttributes() {
     return [
       {
@@ -28,8 +32,11 @@ const FontSize = Extension.create({
         attributes: {
           fontSize: {
             default: null,
-            renderHTML: (attrs) => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
-            parseHTML: (el) => ({ fontSize: el.style.fontSize.replace(/['"]+/g, "") }),
+            renderHTML: (attrs) =>
+              attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
+            parseHTML: (el) => ({
+              fontSize: el.style.fontSize.replace(/['"]+/g, ""),
+            }),
           },
         },
       },
@@ -37,8 +44,17 @@ const FontSize = Extension.create({
   },
   addCommands() {
     return {
-      setFontSize: (size) => ({ chain }) => chain().setMark("textStyle", { fontSize: size }).run(),
-      unsetFontSize: () => ({ chain }) => chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run(),
+      setFontSize:
+        (size) =>
+        ({ chain }) =>
+          chain().setMark("textStyle", { fontSize: size }).run(),
+      unsetFontSize:
+        () =>
+        ({ chain }) =>
+          chain()
+            .setMark("textStyle", { fontSize: null })
+            .removeEmptyTextStyle()
+            .run(),
     };
   },
 });
@@ -53,6 +69,7 @@ export default function CreateBlog() {
   const [image, setImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [imageChoiceModalOpen, setImageChoiceModalOpen] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -64,10 +81,22 @@ export default function CreateBlog() {
   const navigate = useNavigate();
 
   const editor = useEditor({
-    extensions: [StarterKit, TextStyle, Color, FontFamily, FontSize, TextAlign.configure({ types: ["heading", "paragraph"] })],
+    extensions: [
+      StarterKit,
+      TextStyle,
+      Color,
+      FontFamily,
+      FontSize,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+    ],
     content,
     onUpdate: ({ editor }) => setContent(editor.getHTML()),
-    editorProps: { attributes: { class: "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none min-h-[200px] p-3 border rounded bg-gray-50" } },
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none min-h-[200px] p-3 border rounded bg-gray-50",
+      },
+    },
   });
 
   // Fetch user info
@@ -87,36 +116,68 @@ export default function CreateBlog() {
 
   // Fetch tags
   useEffect(() => {
-    axios.get(`${API_URL}/api/tags`)
-      .then(res => setTags(res.data))
+    axios
+      .get(`${API_URL}/api/tags`)
+      .then((res) => setTags(res.data))
       .catch(console.error);
   }, []);
 
   // Handle tags
   const handleTagChange = (tagId) => {
-    setSelectedTags(prev => prev.includes(tagId)
-      ? prev.filter(id => id !== tagId)
-      : prev.length < 5 ? [...prev, tagId] : alert("Max 5 tags"));
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : prev.length < 5
+        ? [...prev, tagId]
+        : alert("Max 5 tags")
+    );
   };
 
   // Crop callbacks
-  const onCropComplete = useCallback((_, pixels) => setCroppedAreaPixels(pixels), []);
+  const onCropComplete = useCallback(
+    (_, pixels) => setCroppedAreaPixels(pixels),
+    []
+  );
+
   const showCroppedImage = useCallback(async () => {
     try {
       const blob = await getCroppedImg(image, croppedAreaPixels);
       setCroppedImage(blob);
       setCropModalOpen(false);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }, [image, croppedAreaPixels]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) { setImage(URL.createObjectURL(file)); setCropModalOpen(true); }
+    if (file) {
+      setImage(URL.createObjectURL(file));
+      setImageChoiceModalOpen(true);
+    }
+  };
+
+  const handleUseFullImage = () => {
+    // Convert the selected image to a blob directly
+    fetch(image)
+      .then((res) => res.blob())
+      .then((blob) => {
+        setCroppedImage(blob);
+        setImageChoiceModalOpen(false);
+      });
+  };
+
+  const handleCropOption = () => {
+    setImageChoiceModalOpen(false);
+    setCropModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !mainCategory || !content || selectedTags.length === 0) { alert("Fill all required fields"); return; }
+    if (!title || !mainCategory || !content || selectedTags.length === 0) {
+      alert("Fill all required fields");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -124,70 +185,225 @@ export default function CreateBlog() {
     if (subCategory) formData.append("subcategory", subCategory);
     formData.append("content", content);
     if (croppedImage) formData.append("image", croppedImage, "cropped.jpg");
-    selectedTags.forEach(tagId => formData.append("tags[]", tagId));
+    selectedTags.forEach((tagId) => formData.append("tags[]", tagId));
 
     try {
       await axios.post(`${API_URL}/api/blogs`, formData, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
       setMessage("✅ Blog published successfully!");
       setTimeout(() => {
-        setTitle(""); setMainCategory(""); setSubCategory(""); setContent("");
-        editor.commands.setContent(""); setImage(null); setSelectedTags([]); setMessage("");
+        setTitle("");
+        setMainCategory("");
+        setSubCategory("");
+        setContent("");
+        editor.commands.setContent("");
+        setImage(null);
+        setSelectedTags([]);
+        setMessage("");
         navigate("/dashboard");
       }, 2000);
-    } catch (err) { console.error(err); alert("Error creating blog"); }
+    } catch (err) {
+      console.error(err);
+      alert("Error creating blog");
+    }
   };
 
-  const handleLogout = () => { localStorage.removeItem("token"); navigate("/"); };
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
   const getProfileImage = () => user?.profileImage || "/default-avatar.png";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-100 to-indigo-200 flex font-sans text-gray-800">
       {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
-      {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-30 z-10 md:hidden" onClick={() => setSidebarOpen(false)} />}
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        handleLogout={handleLogout}
+      />
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-10 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex flex-col flex-1 md:ml-64 transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between bg-white bg-opacity-90 py-3 px-6 shadow border-b z-10">
           <div className="flex items-center gap-4">
-            <button className="md:hidden p-2 rounded bg-gray-100 hover:bg-gray-200" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-            <h1 className="text-xl md:text-2xl font-bold text-indigo-700 tracking-wide">Create Blog</h1>
+            <button
+              className="md:hidden p-2 rounded bg-gray-100 hover:bg-gray-200"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ☰
+            </button>
+            <h1 className="text-xl md:text-2xl font-bold text-indigo-700 tracking-wide">
+              Create Blog
+            </h1>
           </div>
-          <ProfileMenu user={user} handleLogout={handleLogout} getProfileImage={getProfileImage} />
+          <ProfileMenu
+            user={user}
+            handleLogout={handleLogout}
+            getProfileImage={getProfileImage}
+          />
         </div>
 
         {/* Main Content */}
         <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow-sm flex-grow">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <input type="text" placeholder="Enter blog title..." className="w-full p-2 border rounded" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input
+              type="text"
+              placeholder="Enter blog title..."
+              className="w-full p-2 border rounded"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
             {/* Category */}
-            <select value={mainCategory} onChange={e => { setMainCategory(e.target.value); setSubCategory(""); }} className="w-full p-2 border rounded">
+            <select
+              value={mainCategory}
+              onChange={(e) => {
+                setMainCategory(e.target.value);
+                setSubCategory("");
+              }}
+              className="w-full p-2 border rounded"
+            >
               <option value="">Select Category</option>
-              {categories.map(c => <option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
+              {categories.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.icon} {c.name}
+                </option>
+              ))}
             </select>
-            {mainCategory && categories.find(c => c.name === mainCategory)?.subcategories.length > 0 && (
-              <select value={subCategory} onChange={e => setSubCategory(e.target.value)} className="w-full p-2 border rounded">
-                <option value="">Select Subcategory</option>
-                {categories.find(c => c.name === mainCategory).subcategories.map(sc => <option key={sc} value={sc}>{sc}</option>)}
-              </select>
-            )}
+            {mainCategory &&
+              categories.find((c) => c.name === mainCategory)?.subcategories
+                .length > 0 && (
+                <select
+                  value={subCategory}
+                  onChange={(e) => setSubCategory(e.target.value)}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Select Subcategory</option>
+                  {categories
+                    .find((c) => c.name === mainCategory)
+                    .subcategories.map((sc) => (
+                      <option key={sc} value={sc}>
+                        {sc}
+                      </option>
+                    ))}
+                </select>
+              )}
 
             {/* Image Upload */}
             <input type="file" accept="image/*" onChange={handleImageChange} />
-            {croppedImage && <img src={URL.createObjectURL(croppedImage)} alt="Preview" className="w-full h-64 object-cover rounded border mt-2" />}
+            {croppedImage && (
+              <img
+                src={URL.createObjectURL(croppedImage)}
+                alt="Preview"
+                className="w-full h-64 object-cover rounded border mt-2"
+              />
+            )}
 
-            <Modal isOpen={cropModalOpen} onRequestClose={() => setCropModalOpen(false)} ariaHideApp={false} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
-              <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-lg">
-                <h2 className="text-lg font-semibold mb-3">Crop your image</h2>
-                <div className="relative w-full h-64 bg-gray-200">
-                  <Cropper image={image} crop={crop} zoom={zoom} aspect={16/9} onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onCropComplete} />
+            {/* Image Choice Modal */}
+            <Modal
+              isOpen={imageChoiceModalOpen}
+              onRequestClose={() => setImageChoiceModalOpen(false)}
+              ariaHideApp={false}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60"
+            >
+              <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm text-center">
+                <h2 className="text-lg font-semibold mb-4">
+                  Choose Image Option
+                </h2>
+                <div className="flex flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={handleUseFullImage}
+                    className="bg-green-600 text-white py-2 rounded hover:bg-green-700"
+                  >
+                    Use Full Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCropOption}
+                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                  >
+                    Crop Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageChoiceModalOpen(false)}
+                    className="bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
                 </div>
-                <div className="flex justify-between items-center mt-3">
-                  <input type="range" min={1} max={3} step={0.1} value={zoom} onChange={e => setZoom(e.target.value)} />
-                  <button type="button" onClick={showCroppedImage} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Crop & Save</button>
+              </div>
+            </Modal>
+
+            {/* Crop Modal */}
+            <Modal
+              isOpen={cropModalOpen}
+              onRequestClose={() => setCropModalOpen(false)}
+              ariaHideApp={false}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60"
+            >
+              <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-lg">
+                <h2 className="text-lg font-semibold mb-3">Adjust your image</h2>
+                <div className="relative w-full h-72 bg-gray-200 rounded overflow-hidden">
+                  <Cropper
+                    image={image}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={null} // ✅ Free form cropping like mobile
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={onCropComplete}
+                    cropShape="rect"
+                    showGrid={false}
+                  />
+                </div>
+                <div className="flex flex-col gap-3 mt-4">
+                  <input
+                    type="range"
+                    min={1}
+                    max={4}
+                    step={0.1}
+                    value={zoom}
+                    onChange={(e) => setZoom(e.target.value)}
+                  />
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCrop({ x: 0, y: 0 });
+                        setZoom(1);
+                      }}
+                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCropModalOpen(false)}
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={showCroppedImage}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                      Crop & Save
+                    </button>
+                  </div>
                 </div>
               </div>
             </Modal>
@@ -196,9 +412,20 @@ export default function CreateBlog() {
             <div className="border p-3 rounded">
               <h2 className="font-semibold mb-2">Select Tags (1–5 allowed)</h2>
               <div className="flex flex-wrap gap-3">
-                {tags.map(tag => (
-                  <label key={tag._id} className={`flex items-center gap-2 border px-3 py-1 rounded cursor-pointer ${selectedTags.includes(tag._id) ? "bg-blue-100 border-blue-400 text-blue-600" : "hover:bg-gray-50"}`}>
-                    <input type="checkbox" checked={selectedTags.includes(tag._id)} onChange={() => handleTagChange(tag._id)} />
+                {tags.map((tag) => (
+                  <label
+                    key={tag._id}
+                    className={`flex items-center gap-2 border px-3 py-1 rounded cursor-pointer ${
+                      selectedTags.includes(tag._id)
+                        ? "bg-blue-100 border-blue-400 text-blue-600"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTags.includes(tag._id)}
+                      onChange={() => handleTagChange(tag._id)}
+                    />
                     {tag.name}
                   </label>
                 ))}
@@ -209,9 +436,16 @@ export default function CreateBlog() {
             <EditorToolbar editor={editor} />
             <EditorContent editor={editor} />
 
-            <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Publish</button>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            >
+              Publish
+            </button>
           </form>
-          {message && <div className="mt-4 text-green-600 font-semibold">{message}</div>}
+          {message && (
+            <div className="mt-4 text-green-600 font-semibold">{message}</div>
+          )}
         </div>
       </div>
     </div>
