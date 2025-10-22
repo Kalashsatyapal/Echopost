@@ -21,11 +21,11 @@ export default function AdminDashboard() {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  const API_URL = import.meta.env.VITE_API_URL;
   // Fetch stats
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/stats`, {
+      const res = await axios.get(`${API_URL}/api/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   // Fetch tags
   const fetchTags = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/tags`);
+      const res = await axios.get(`${API_URL}/api/tags`);
       setTags(res.data);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/tags`,
+        `${API_URL}/api/tags`,
         { name, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
   const handleDeleteTag = async (id) => {
     if (!window.confirm("Delete this tag?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/tags/${id}`, {
+      await axios.delete(`${API_URL}/api/tags/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Tag deleted");
