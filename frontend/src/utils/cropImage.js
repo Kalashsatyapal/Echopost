@@ -1,6 +1,3 @@
-import { createImage, getRadianAngle } from "./utils"; // optional utility
-import { getCroppedImg } from "react-easy-crop";
-
 export default async function getCroppedImg(imageSrc, pixelCrop) {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
