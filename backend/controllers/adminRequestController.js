@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import User from "../models/User.js";
-import AdminRequest from "../models/adminRequestModel.js";
+import AdminRequest from "../models/AdminRequest.js";
 import bcrypt from "bcryptjs";
 
 // Create reusable transporter
