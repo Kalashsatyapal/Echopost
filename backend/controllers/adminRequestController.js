@@ -1,45 +1,6 @@
-import nodemailer from "nodemailer";
 import User from "../models/User.js";
 import AdminRequest from "../models/AdminRequest.js";
 import bcrypt from "bcryptjs";
-
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
-
-// Email sending utility function
-const sendEmail = async (to, subject, text) => {
-  try {
-    const mailOptions = {
-      from: `"EchoPost" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      text
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
-    return true;
-  } catch (error) {
-    console.error('Email sending failed:', {
-      error: error.message,
-      errorCode: error.code,
-      errorCommand: error.command
-    });
-    return false;
-  }
-};
 
 // Create admin request
 export const createAdminRequest = async (req, res) => {
@@ -65,17 +26,9 @@ export const createAdminRequest = async (req, res) => {
       password: hashedPassword
     });
 
-    // Notify SuperAdmin
-    const emailSent = await sendEmail(
-      process.env.SUPERADMIN_EMAIL,
-      "New Admin Request Received",
-      `Hello SuperAdmin,\n\nA new admin request has been submitted:\n\nName: ${name}\nEmail: ${email}\n\nCheck the dashboard to accept/reject this request.`
-    );
-
     res.status(201).json({
       message: "Admin request created successfully",
-      request: newRequest,
-      emailStatus: emailSent ? "Email sent successfully" : "Email sending failed"
+      request: newRequest
     });
 
   } catch (error) {
@@ -138,21 +91,9 @@ export const updateAdminRequest = async (req, res) => {
       }
     }
 
-    // Send notification email to requester
-    const emailText = status === "accepted"
-      ? `Hello ${request.name},\n\nYour admin request has been accepted. You can now login to EchoPost as an admin using your email and password.`
-      : `Hello ${request.name},\n\nYour admin request has been rejected. If you have any questions, please contact the support team.`;
-
-    const emailSent = await sendEmail(
-      request.email,
-      `Your Admin Request has been ${status}`,
-      emailText
-    );
-
     res.json({
       message: `Request ${status} successfully`,
-      request,
-      emailStatus: emailSent ? "Email sent successfully" : "Email sending failed"
+      request
     });
 
   } catch (error) {
