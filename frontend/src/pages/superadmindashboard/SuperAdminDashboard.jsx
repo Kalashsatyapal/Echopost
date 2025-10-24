@@ -33,6 +33,28 @@ export default function SuperAdminDashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const API_URL = import.meta.env.VITE_API_URL;
+
+    // Add this function
+  const handleUpdate = async (id, status) => {
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+    try {
+      await axios.put(
+        `${API_URL}/api/admin-requests/${id}`,
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success(`Request ${status}`);
+      // refresh list (fetchRequests is defined in this component)
+      await fetchRequests();
+    } catch (err) {
+      console.error("Error updating request:", err);
+      const msg = err?.response?.data?.message || "Update failed";
+      toast.error(msg);
+    }
+  };
   const fetchRequests = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/admin-requests`, {
